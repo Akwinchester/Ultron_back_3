@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "ultron-backend"
+version = "0.1.0"
+description = ""
+authors = ["Akwinchester <arsenijkiselev03@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.111.1"
+uvicorn = "^0.30.3"
+pydantic-settings = "^2.4.0"
+sqlalchemy = "^2.0.31"
+alembic = "^1.13.2"
+asyncpg = "^0.29.0"
+psycopg = "^3.2.1"
+psycopg2 = "^2.9.9"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+bcrypt = "4.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

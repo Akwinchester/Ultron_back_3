@@ -167,3 +167,6 @@ cython_debug/
 
 # volumes
 docker/data/
+/work_place.py
+/create_context_for_AI.py
+/context_backend.txt
