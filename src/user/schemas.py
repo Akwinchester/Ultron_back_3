@@ -42,7 +42,7 @@ class Activity(BaseModel):
         from_attributes = True
 
 
-class UserLogin(BaseModel):
+class LoginRequest(BaseModel):
     username: str
     password: str
 
@@ -56,8 +56,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
 

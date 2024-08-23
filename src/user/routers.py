@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
-from src.user.schemas import UserCreate, UserUpdate, User, Token, UserFull
+from src.user.schemas import UserCreate, UserUpdate, User, Token, UserFull, LoginRequest
 from src.user.service import UserService
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
@@ -66,9 +66,9 @@ async def delete_user_endpoint(user_id: int, db: AsyncSession = Depends(get_db),
 
 
 @router.post("/login", response_model=Token)
-async def login_for_access_token(db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await get_user_by_username(db, form_data.username)
-    if not user or not user.verify_password(form_data.password):
+async def login_for_access_token(login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
+    user = await get_user_by_username(db, login_data.username)
+    if not user or not user.verify_password(login_data.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
