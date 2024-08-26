@@ -9,6 +9,7 @@ from src.database import get_db
 from src.user.utils import get_user_by_username, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_user, \
     create_refresh_token, verify_token
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Cookie
 
 router = APIRouter()
 
@@ -87,14 +88,20 @@ async def login_for_access_token(login_data: LoginRequest, db: AsyncSession = De
 
 
 @router.post("/refresh", response_model=Token)
-async def refresh_access_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
+async def refresh_access_token(refresh_token: str = Cookie(None), db: AsyncSession = Depends(get_db)):
     """
-    Эндпоинт для обновления access token используя refresh token.
+    Эндпоинт для обновления access token используя refresh token, который берется из куков.
 
-    :param refresh_token: Рефреш токен для обновления access token.
+    :param refresh_token: Рефреш токен для обновления access token, переданный через куки.
     :param db: Асинхронная сессия SQLAlchemy.
     :return: Новый access token и рефреш токен.
     """
+    if refresh_token is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token is missing from cookies",
+        )
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
