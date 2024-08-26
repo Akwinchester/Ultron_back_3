@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Cookie, Request, Response
 from typing import List
 from src.user.schemas import UserCreate, UserUpdate, User, Token, UserFull, LoginRequest
 from src.user.service import UserService
@@ -9,7 +9,6 @@ from src.database import get_db
 from src.user.utils import get_user_by_username, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_user, \
     create_refresh_token, verify_token
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Cookie
 
 router = APIRouter()
 
@@ -86,7 +85,6 @@ async def login_for_access_token(login_data: LoginRequest, db: AsyncSession = De
 
     return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}
 
-
 @router.post("/refresh", response_model=Token)
 async def refresh_access_token(refresh_token: str = Cookie(None), db: AsyncSession = Depends(get_db)):
     """
@@ -101,7 +99,8 @@ async def refresh_access_token(refresh_token: str = Cookie(None), db: AsyncSessi
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Refresh token is missing from cookies",
         )
-
+    # Печать значения куки
+    print(f"Received refresh token: {refresh_token}")
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -124,3 +123,29 @@ async def refresh_access_token(refresh_token: str = Cookie(None), db: AsyncSessi
     await db.commit()
 
     return {"access_token": access_token, "token_type": "bearer", "refresh_token": new_refresh_token}
+
+# @router.post("/refresh", response_model=Token)
+# async def refresh_access_token(request: Request, refresh_token: str = Cookie(None), db: AsyncSession = Depends(get_db)):
+#     # Печать всех куков, переданных в запросе
+#     print("All cookies:", request.cookies)
+#
+#     # Печать конкретного кука
+#     print("Refresh token cookie:", refresh_token)
+
+@router.post("/set-cookie")
+async def set_refresh_cookie(refresh_token, response: Response):
+    """
+    Эндпоинт для установки HttpOnly куки с рефреш токеном.
+    """
+
+    # Установка куки с флагом HttpOnly
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=600,  # Время жизни куки в секундах
+        expires=600,  # Время жизни куки в секундах
+        samesite="lax"  # Политика SameSite, может быть "lax", "strict", или "none"
+    )
+
+    return {"message": "Refresh token set in HttpOnly cookie"}

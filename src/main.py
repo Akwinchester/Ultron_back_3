@@ -31,9 +31,9 @@ def custom_openapi():
     }
 
     # Добавляем глобальную безопасность для всех эндпоинтов
-    for path in openapi_schema["paths"].values():
-        for method in path.values():
-            method["security"] = [{"BearerAuth": []}]
+    # for path in openapi_schema["paths"].values():
+    #     for method in path.values():
+    #         method["security"] = [{"BearerAuth": []}]
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
